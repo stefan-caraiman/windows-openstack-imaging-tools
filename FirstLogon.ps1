@@ -85,6 +85,9 @@ $logonScriptPath = "$ENV:SystemRoot\Temp\Logon.ps1"
 
 try
 {
+    $Host.UI.RawUI.WindowTitle = "Setting Password Expiration To False For User CiAdmin"
+    cmd /C wmic useraccount where "name='CiAdmin'" set PasswordExpires=FALSE
+    
     $Host.UI.RawUI.WindowTitle = "Downloading Logon script..."
     $baseUrl = "https://raw.github.com/cloudbase/windows-openstack-imaging-tools/master"
     (new-object System.Net.WebClient).DownloadFile("$baseUrl/Logon.ps1", $logonScriptPath)
