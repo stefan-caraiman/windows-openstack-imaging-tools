@@ -89,7 +89,7 @@ try
     cmd /C wmic useraccount where "name='CiAdmin'" set PasswordExpires=FALSE
     
     $Host.UI.RawUI.WindowTitle = "Downloading Logon script..."
-    $baseUrl = "https://raw.github.com/cloudbase/windows-openstack-imaging-tools/master"
+    $baseUrl = "https://raw.github.com/PCManticore/windows-openstack-imaging-tools/master"
     (new-object System.Net.WebClient).DownloadFile("$baseUrl/Logon.ps1", $logonScriptPath)
 
     $hypervisorStr = getHypervisor
