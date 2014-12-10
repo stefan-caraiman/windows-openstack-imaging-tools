@@ -91,7 +91,7 @@ try
     # Disable UAC so that using /runas for Start-Process will work.
     # Also, it will require a reboot and since Logon.ps1 runs after
     # we restart, we add this modifier here.
-    $Host.UI.RawUI.WindowTile = "Disabling uac"
+    $Host.UI.RawUI.WindowTitle = "Disabling uac"
     Set-ItemProperty -path "HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system" -name EnableLUA -value 0
     
     $Host.UI.RawUI.WindowTitle = "Downloading Logon script..."
