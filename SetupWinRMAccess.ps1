@@ -3,6 +3,15 @@ $ErrorActionPreference = "Inquire"
 
 
 # Configure WinRM
+function RemoveExistingWinRMHttpListener() {
+    $httpListener = Get-Item -Path wsman:\localhost\listener\* | where {$_.Keys.Contains("Transport=HTTP")}
+    if ($httpListener) {
+        Remove-Item -Recurse -Force -Path ("wsman:\localhost\listener\" + $httpsListener.Name)
+    }
+}
+
+RemoveExistingWinRMHttpListener
+
 & winrm create winrm/config/Listener?Address=*+Transport=HTTP `@`{Hostname=`"$($ENV:COMPUTERNAME)`"`}
 if ($LastExitCode) { throw "Failed to setup WinRM HTTP listener" }
 
