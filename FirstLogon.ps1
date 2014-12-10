@@ -87,6 +87,12 @@ try
 {
     $Host.UI.RawUI.WindowTitle = "Setting Password Expiration To False For User CiAdmin"
     cmd /C wmic useraccount where "name='CiAdmin'" set PasswordExpires=FALSE
+
+    # Disable UAC so that using /runas for Start-Process will work.
+    # Also, it will require a reboot and since Logon.ps1 runs after
+    # we restart, we add this modifier here.
+    $Host.UI.RawUI.WindowTile = "Disabling uac"
+    Set-ItemProperty -path "HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system" -name EnableLUA -value 0
     
     $Host.UI.RawUI.WindowTitle = "Downloading Logon script..."
     $baseUrl = "https://raw.github.com/PCManticore/windows-openstack-imaging-tools/master"
