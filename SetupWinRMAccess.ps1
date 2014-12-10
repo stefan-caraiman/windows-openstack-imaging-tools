@@ -3,17 +3,19 @@ $ErrorActionPreference = "Inquire"
 
 
 # Configure WinRM
-function RemoveExistingWinRMHttpListener() {
+function ShouldInstallWinRMHttpListener() {
     $httpListener = Get-Item -Path wsman:\localhost\listener\* | where {$_.Keys.Contains("Transport=HTTP")}
     if ($httpListener) {
-        Remove-Item -Recurse -Force -Path ("wsman:\localhost\listener\" + $httpsListener.Name)
+        return $False
     }
+    return $True
 }
 
-RemoveExistingWinRMHttpListener
 
-& winrm create winrm/config/Listener?Address=*+Transport=HTTP `@`{Hostname=`"$($ENV:COMPUTERNAME)`"`}
-if ($LastExitCode) { throw "Failed to setup WinRM HTTP listener" }
+if (ShouldInstallWinRMHttpListener) {
+    & winrm create winrm/config/Listener?Address=*+Transport=HTTP `@`{Hostname=`"$($ENV:COMPUTERNAME)`"`}
+    if ($LastExitCode) { throw "Failed to setup WinRM HTTP listener" }
+}
 
 & winrm set winrm/config/service `@`{AllowUnencrypted=`"true`"`}
 if ($LastExitCode) { throw "Failed to setup WinRM HTTP listener" }
