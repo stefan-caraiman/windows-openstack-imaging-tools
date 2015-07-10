@@ -4,10 +4,11 @@ $GitInstallPath = "$ENV:Temp\git-installer.exe"
 (new-object System.Net.WebClient).DownloadFile($GitUrl, $GitInstallPath)
 cmd.exe /C call $GitInstallPath /silent
 $AddedFolder = "${env:ProgramFiles(x86)}\Git\cmd"
-$OldPath = (Get-ItemProperty -Path
-           'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment'
+$OldPath = (Get-ItemProperty -Path `
+           'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' `
            -Name PATH).Path
 $NewPath = $OldPath+’;’ + $AddedFolder
 Set-ItemProperty -Path `
     'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' `
     -Name PATH –Value $NewPath
+
