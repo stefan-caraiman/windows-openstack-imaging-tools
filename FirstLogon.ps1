@@ -28,7 +28,8 @@ function getVirtioDriversFolder(){
     if (($osVersion.Major -ne 6) -or !$versionFolder) { throw "Unsupported Windows version" }
 
     $virtIOPath = Join-Path -Path $versionFolder -ChildPath $archFolder
-    $drive = (gwmi Win32_CDROMDrive | where {(Test-Path (join-path -Path $_.Drive -ChildPath $virtIOPath ))}).Drive
+    #$drive = (gwmi Win32_CDROMDrive | where {(Test-Path (join-path -Path $_.Drive -ChildPath $virtIOPath ))}).Drive
+    $drive = "E:"
     if (! $drive) { throw "VirtIO drivers not found" }
 
     return join-path -Path $drive -ChildPath $virtIOPath | join-path -ChildPath "*.inf"
