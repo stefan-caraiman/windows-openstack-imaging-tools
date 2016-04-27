@@ -11,7 +11,7 @@ function getOSVersion(){
 function Install-VirtIODrivers()
 {
         $Host.UI.RawUI.WindowTitle = "Downloading VirtIO certificate..."
-    $virtioCertPath = "$ENV:Temp\VirtIO.cer"
+    $virtioCertPath = "$ENV:SystemRoot\Temp\VirtIO.cer"
     $url = "$baseUrl/VirtIO.cer"
     (new-object System.Net.WebClient).DownloadFile($url, $virtioCertPath)
 
@@ -76,7 +76,7 @@ function Install-VirtIODrivers()
 
 function getHypervisor() {
     $checkHypervisorExeUrl = "https://github.com/cloudbase/checkhypervisor/raw/master/bin/checkhypervisor.exe"
-    $checkHypervisorExePath = "$ENV:Temp\checkhypervisor.exe"
+    $checkHypervisorExePath = "$ENV:SystemRoot\Temp\checkhypervisor.exe"
     Invoke-WebRequest -Uri $checkHypervisorExeUrl -OutFile $checkHypervisorExePath
 
     $hypervisor = & $checkHypervisorExePath
@@ -114,7 +114,7 @@ try
             # Note: this command will generate a reboot.
             # "/qn REBOOT=ReallySuppress" does not seem to work properly
             $Host.UI.RawUI.WindowTitle = "Installing VMware tools..."
-            E:\setup64.exe `/s `/v `/qn `/l `"$ENV:Temp\vmware_tools_install.log`"
+            E:\setup64.exe `/s `/v `/qn `/l `"$ENV:SystemRoot\Temp\vmware_tools_install.log`"
             if (!$?) { throw "VMware tools setup failed" }
         }
         "KVMKVMKVM"
