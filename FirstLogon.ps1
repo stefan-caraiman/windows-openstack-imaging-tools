@@ -126,8 +126,8 @@ try
 }
 catch
 {
-    $host.ui.WriteErrorLine($_.Exception.ToString())
-    $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    #$host.ui.WriteErrorLine($_.Exception.ToString())
+    #$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     # Prevents the setup from proceeding
     if ( Test-Path $logonScriptPath ) { del $logonScriptPath }
     throw
