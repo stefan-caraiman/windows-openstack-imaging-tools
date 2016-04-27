@@ -58,9 +58,7 @@ function Install-VirtIODrivers()
     $drivers = @("Balloon", "NetKVM", "viorng", "vioscsi", "vioserial", "viostor")
     foreach ($driver in $drivers) {
         $virtioDir = "{0}\{1}\{2}\{3}" -f $driversBasePath, $driver, $virtioVer, $windowsArchitecure
-        if (Test-Path $virtioDir) {
-            pnputil.exe -i -a $virtioDir\*.inf
-        }
+        pnputil.exe -i -a $virtioDir\*.inf
     }
 }
 
@@ -123,4 +121,3 @@ catch
     throw
 }
 
-Export-ModuleMember getOSVersion, Install-VirtIODrivers
