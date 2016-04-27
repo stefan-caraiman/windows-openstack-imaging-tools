@@ -10,6 +10,17 @@ function getOSVersion(){
 }
 function Install-VirtIODrivers()
 {
+        $Host.UI.RawUI.WindowTitle = "Downloading VirtIO certificate..."
+    $virtioCertPath = "$ENV:Temp\VirtIO.cer"
+    $url = "$baseUrl/VirtIO.cer"
+    (new-object System.Net.WebClient).DownloadFile($url, $virtioCertPath)
+
+    $Host.UI.RawUI.WindowTitle = "Installing VirtIO certificate..."
+    $cacert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($virtioCertPath)
+    $castore = New-Object System.Security.Cryptography.X509Certificates.X509Store([System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher,`
+                     [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine)
+    $castore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+    $castore.Add($cacert)
     $driversBasePath = (Get-WMIObject Win32_CDROMDrive | ? { $_.caption -like "*virt*" }).Drive
     $windowsVersion = getOSVersion
     if([Environment]::Is64BitOperatingSystem -eq "True"){
