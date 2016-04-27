@@ -120,6 +120,7 @@ try
         "KVMKVMKVM"
         {
             Install-VirtIODrivers
+            Start-Sleep -s 15
             shutdown /r /t 0
         }
     }
@@ -131,5 +132,6 @@ catch
     # Prevents the setup from proceeding
     if ( Test-Path $logonScriptPath ) { del $logonScriptPath }
     throw
+    Start-Sleep -s 15
 }
 
