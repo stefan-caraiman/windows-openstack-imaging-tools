@@ -23,7 +23,7 @@ try
         $unattendXMLPath = "$ENV:Temp\Unattend32.xml"
     }
     (new-object System.Net.WebClient).DownloadFile($unattendXMLUrl, $unattendXMLPath)
-    & "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/unattend:"$unattendXMLPath" `/shutdown
+   # & "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/unattend:"$unattendXMLPath" `/shutdown
 }
 catch
 {
