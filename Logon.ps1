@@ -8,6 +8,9 @@ try
     (new-object System.Net.WebClient).DownloadFile($winrmLUrl, $winrmPath)
     powershell -NoLogo -NonInteractive -ExecutionPolicy RemoteSigned -File $winrmPath
 
+    $Host.UI.RawUI.WindowTitle = "Press any key to continue..."    
+    $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name Unattend*
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonCount
 
