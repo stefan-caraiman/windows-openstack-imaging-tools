@@ -6,11 +6,9 @@ try
     $winrmLUrl = "https://raw.github.com/stefan-caraiman/windows-openstack-imaging-tools/master/SetupWinRMAccess.ps1"
     $winrmPath = "$ENV:SystemRoot\Temp\SetupWinRMAccess.ps1"
     (new-object System.Net.WebClient).DownloadFile($winrmLUrl, $winrmPath)
-    Set-ExecutionPolicy Bypass
     powershell -NoLogo -NonInteractive -ExecutionPolicy RemoteSigned -File $winrmPath
 
     $Host.UI.RawUI.WindowTitle = "Press any key to continue..."    
-    $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name Unattend*
     Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonCount
@@ -25,7 +23,7 @@ try
     }
     (new-object System.Net.WebClient).DownloadFile($unattendXMLUrl, $unattendXMLPath)
     $unattendXMLPath
-   # & "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/unattend:"$unattendXMLPath" `/shutdown
+    & "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/unattend:"$unattendXMLPath" `/shutdown
 }
 catch
 {
