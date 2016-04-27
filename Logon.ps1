@@ -6,7 +6,7 @@ try
     $winrmLUrl = "https://raw.github.com/stefan-caraiman/windows-openstack-imaging-tools/master/SetupWinRMAccess.ps1"
     $winrmPath = "$ENV:SystemRoot\Temp\SetupWinRMAccess.ps1"
     (new-object System.Net.WebClient).DownloadFile($winrmLUrl, $winrmPath)
-    Set-ExecutionPolicy RemoteSigned
+    Set-ExecutionPolicy Bypass
     powershell -NoLogo -NonInteractive -ExecutionPolicy RemoteSigned -File $winrmPath
 
     $Host.UI.RawUI.WindowTitle = "Press any key to continue..."    
