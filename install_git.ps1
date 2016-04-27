@@ -3,12 +3,15 @@ $GitUrl = ("https://github.com/msysgit/msysgit/releases/download/Git-1.9.5-previ
 $GitInstallPath = "$ENV:Temp\git-installer.exe"
 (new-object System.Net.WebClient).DownloadFile($GitUrl, $GitInstallPath)
 cmd.exe /C call $GitInstallPath /silent
-$AddedFolder = "${env:ProgramFiles(x86)}\Git\cmd"
+if([Environment]::Is64BitOperatingSystem -eq "True"){
+  $AddedFolder = "${env:ProgramFiles(x86)}\Git\cmd"
+} else {
+  $AddedFolder = "${env:ProgramFiles}\Git\cmd"
+}
 $OldPath = (Get-ItemProperty -Path `
            'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' `
            -Name PATH).Path
 $NewPath = $OldPath + ";" + $AddedFolder
 Set-ItemProperty -Path `
     'Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\Environment' `
-    -Name PATH –Value $NewPath
-
+    -Name PATH -Value $NewPath

@@ -150,7 +150,7 @@
                             <Value>Passw0rd</Value>
                             <PlainText>true</PlainText>
                         </Password>
-                    </LocalAccount>    
+                    </LocalAccount>
                 </LocalAccounts>
             </UserAccounts>
             <AutoLogon>
@@ -189,7 +189,7 @@
             <RunSynchronous>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>1</Order>
-                    <Path>powershell -NoLogo -Command "(new-object System.Net.WebClient).DownloadFile('https://raw.github.com/PCManticore/windows-openstack-imaging-tools/master/Specialize.ps1', 'c:\Windows\Temp\Specialize.ps1')"</Path>
+                    <Path>powershell -NoLogo -Command "(new-object System.Net.WebClient).DownloadFile('https://raw.github.com/stefan-caraiman/windows-openstack-imaging-tools/master/Specialize.ps1', 'c:\Windows\Temp\Specialize.ps1')"</Path>
                     <Description>Download Specialize script</Description>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
@@ -208,7 +208,7 @@
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">
                     <Order>4</Order>
-                    <Path>powershell -NoLogo -Command "(new-object System.Net.WebClient).DownloadFile('https://raw.githubusercontent.com/PCManticore/windows-openstack-imaging-tools/master/install_git.ps1', 'c:\Windows\Temp\install_git.ps1')"</Path>
+                    <Path>powershell -NoLogo -Command "(new-object System.Net.WebClient).DownloadFile('https://raw.githubusercontent.com/stefan-caraiman/windows-openstack-imaging-tools/master/install_git.ps1', 'c:\Windows\Temp\install_git.ps1')"</Path>
                     <Description>Download git install script</Description>
                 </RunSynchronousCommand>
                 <RunSynchronousCommand wcm:action="add">

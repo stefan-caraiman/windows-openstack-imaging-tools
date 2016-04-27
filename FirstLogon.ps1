@@ -2,70 +2,66 @@ $ErrorActionPreference = "Stop"
 
 function getOSVersion(){
     $v = (Get-WmiObject Win32_OperatingSystem).Version.Split('.')
-
     return New-Object psobject -Property @{
         Major = [int]::Parse($v[0])
         Minor = [int]::Parse($v[1])
         Build = [int]::Parse($v[2])
     }
 }
-
-function getVirtioDriversFolder(){
-    $architectureMapping = @{}
-    $architectureMapping['32-bit']='X86'
-    $architectureMapping['64-bit']='AMD64'
-    $osVersionMapping = @{}
-    $osVersionMapping[0]='VISTA'
-    $osVersionMapping[1]='WIN7'
-    $osVersionMapping[2]='WIN8'
-    $osVersionMapping[3]='WIN8'
-
-    $osArchitecture = (Get-WmiObject Win32_OperatingSystem).OSArchitecture
-    $archFolder = $architectureMapping[$osArchitecture]
-
-    $osVersion = getOSVersion
-    $versionFolder = $osVersionMapping[$osVersion.Minor]
-    if (($osVersion.Major -ne 6) -or !$versionFolder) { throw "Unsupported Windows version" }
-
-    $virtIOPath = Join-Path -Path $versionFolder -ChildPath $archFolder
-    #$drive = (gwmi Win32_CDROMDrive | where {(Test-Path (join-path -Path $_.Drive -ChildPath $virtIOPath ))}).Drive
-    $drive = "E:"
-    if (! $drive) { throw "VirtIO drivers not found" }
-
-    return join-path -Path $drive -ChildPath $virtIOPath | join-path -ChildPath "*.inf"
-}
-
-function installVirtIOTools2012($virtioDriversPath) {
-    $Host.UI.RawUI.WindowTitle = "Downloading VirtIO drivers script..."
-    $virtioScriptPath = "$ENV:Temp\InstallVirtIODrivers.js"
-    $url = "$baseUrl/InstallVirtIODrivers.js"
-    (new-object System.Net.WebClient).DownloadFile($url, $virtioScriptPath)
-
-    Write-Host "Installing VirtIO drivers from: $virtioDriversPath"
-    & cscript $virtioScriptPath $virtioDriversPath
-    if (!$?) { throw "InstallVirtIO failed" }
-    del $virtioScriptPath
-}
-
-function installVirtIOToolsPre2012($virtioDriversPath) {
-    $Host.UI.RawUI.WindowTitle = "Downloading VirtIO certificate..."
-    $virtioCertPath = "$ENV:Temp\VirtIO.cer"
-    $url = "$baseUrl/VirtIO.cer"
-    (new-object System.Net.WebClient).DownloadFile($url, $virtioCertPath)
-
-    $Host.UI.RawUI.WindowTitle = "Installing VirtIO certificate..."
-    $cacert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($virtioCertPath)
-    $castore = New-Object System.Security.Cryptography.X509Certificates.X509Store([System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher,`
-                     [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine)
-    $castore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-    $castore.Add($cacert)
-
-    Write-Host "Installing VirtIO drivers from: $virtioDriversPath"
-    Start-process -Wait pnputil "-i -a $virtioDriversPath"
-    if (!$?) { throw "InstallVirtIO failed" }
-
-    del $virtioCertPath
-    $castore.Remove($cacert)
+function Install-VirtIODrivers()
+{
+    $driversBasePath = (Get-WMIObject Win32_CDROMDrive | ? { $_.caption -like "*virt*" }).Drive
+    $windowsVersion = getOSVersion
+    if([Environment]::Is64BitOperatingSystem -eq "True"){
+      $windowsArchitecure = "amd64"
+    } else {
+      $windowsArchitecure = "x86"
+    }
+    # For VirtIO ISO with drivers version lower than 1.8.x
+    if ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 0) {
+        $virtioVer = "VISTA"
+    } elseif ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 1) {
+        $virtioVer = "WIN7"
+    } elseif (($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -ge 2) `
+        -or $windowsVersion.Major -gt 6) {
+        $virtioVer = "WIN8"
+    } else {
+        throw "Unsupported Windows version for VirtIO drivers"
+    }
+    #$virtioDir = "{0}\{1}\{2}" -f $driversBasePath, $virtioVer, $windowsArchitecure
+    # For VirtIO ISO with drivers version higher than 1.8.x
+    $windowsType = (Get-WmiObject win32_operatingsystem).producttype
+    if ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 0) {
+        $virtioVer = "2k8"
+    } elseif ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 1) {
+        if ($windowsType -eq "3") {
+            $virtioVer = "2k8r2"
+        } else {
+            $virtioVer = "w7"
+        }
+    } elseif ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 2) {
+        if ($windowsType -eq "3") {
+            $virtioVer = "2k12"
+        } else {
+            $virtioVer = "w8"
+        }
+    } elseif (($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -ge 3) `
+        -or $windowsVersion.Major -gt 6) {
+        if ($windowsType -eq "3") {
+            $virtioVer = "2k12R2"
+        } else {
+            $virtioVer = "w8.1"
+        }
+    } else {
+        throw "Unsupported Windows version for VirtIO drivers"
+    }
+    $drivers = @("Balloon", "NetKVM", "viorng", "vioscsi", "vioserial", "viostor")
+    foreach ($driver in $drivers) {
+        $virtioDir = "{0}\{1}\{2}\{3}" -f $driversBasePath, $driver, $virtioVer, $windowsArchitecure
+        if (Test-Path $virtioDir) {
+            pnputil.exe -i -a $virtioDir\*.inf
+        }
+    }
 }
 
 function getHypervisor() {
@@ -88,15 +84,14 @@ try
 {
     $Host.UI.RawUI.WindowTitle = "Setting Password Expiration To False For User CiAdmin"
     cmd /C wmic useraccount where "name='CiAdmin'" set PasswordExpires=FALSE
-
     # Disable UAC so that using /runas for Start-Process will work.
     # Also, it will require a reboot and since Logon.ps1 runs after
     # we restart, we add this modifier here.
     $Host.UI.RawUI.WindowTitle = "Disabling uac"
     Set-ItemProperty -path "HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\policies\system" -name EnableLUA -value 0
-    
+
     $Host.UI.RawUI.WindowTitle = "Downloading Logon script..."
-    $baseUrl = "https://raw.github.com/PCManticore/windows-openstack-imaging-tools/master"
+    $baseUrl = "https://raw.github.com/stefan-caraiman/windows-openstack-imaging-tools/master"
     (new-object System.Net.WebClient).DownloadFile("$baseUrl/Logon.ps1", $logonScriptPath)
 
     $hypervisorStr = getHypervisor
@@ -114,16 +109,7 @@ try
         }
         "KVMKVMKVM"
         {
-            $virtioDriversPath = getVirtioDriversFolder
-            $osVersion = getOSVersion
-
-            if (($osVersion.Major -ge 6) -and ($osVersion.Minor -ge 2)) {
-                installVirtIOTools2012 $virtioDriversPath
-            }
-            else {
-                installVirtIOToolsPre2012 $virtioDriversPath
-            }
-
+            Install-VirtIODrivers
             shutdown /r /t 0
         }
     }
@@ -136,3 +122,5 @@ catch
     if ( Test-Path $logonScriptPath ) { del $logonScriptPath }
     throw
 }
+
+Export-ModuleMember getOSVersion, Install-VirtIODrivers
