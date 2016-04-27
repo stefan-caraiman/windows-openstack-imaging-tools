@@ -23,6 +23,7 @@ try
     }
     (new-object System.Net.WebClient).DownloadFile($unattendXMLUrl, $unattendXMLPath)
     $unattendXMLPath
+    Start-Sleep -s 15
     & "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/unattend:"$unattendXMLPath" `/shutdown
 }
 catch
@@ -30,4 +31,5 @@ catch
     $host.ui.WriteErrorLine($_.Exception.ToString())
     $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     throw
+    Start-Sleep -s 15
 }
