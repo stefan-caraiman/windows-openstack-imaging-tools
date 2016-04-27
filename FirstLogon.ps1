@@ -21,6 +21,7 @@ function Install-VirtIODrivers()
                      [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine)
     $castore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
     $castore.Add($cacert)
+
     $driversBasePath = (Get-WMIObject Win32_CDROMDrive | ? { $_.caption -like "*virt*" }).Drive
     $windowsVersion = getOSVersion
     if([Environment]::Is64BitOperatingSystem -eq "True"){
@@ -69,7 +70,7 @@ function Install-VirtIODrivers()
     $drivers = @("Balloon", "NetKVM", "viorng", "vioscsi", "vioserial", "viostor")
     foreach ($driver in $drivers) {
         $virtioDir = "{0}\{1}\{2}\{3}" -f $driversBasePath, $driver, $virtioVer, $windowsArchitecure
-        pnputil.exe -i -a $virtioDir\*.inf
+        Start-process -Wait pnputil.exe -i -a $virtioDir\*.inf
     }
 }
 
