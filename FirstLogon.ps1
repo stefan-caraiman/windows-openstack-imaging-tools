@@ -70,7 +70,7 @@ function Install-VirtIODrivers()
     $drivers = @("Balloon", "NetKVM", "viorng", "vioscsi", "vioserial", "viostor")
     foreach ($driver in $drivers) {
         $virtioDir = "{0}\{1}\{2}\{3}" -f $driversBasePath, $driver, $virtioVer, $windowsArchitecure
-        Start-process -Wait pnputil.exe -i -a $virtioDir\*.inf
+        pnputil.exe -i -a $virtioDir\*.inf
     }
 }
 
