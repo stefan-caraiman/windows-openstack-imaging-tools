@@ -10,7 +10,7 @@ function getOSVersion(){
 }
 function Install-VirtIODrivers()
 {
-        $Host.UI.RawUI.WindowTitle = "Downloading VirtIO certificate..."
+    $Host.UI.RawUI.WindowTitle = "Downloading VirtIO certificate..."
     $virtioCertPath = "$ENV:SystemRoot\Temp\VirtIO.cer"
     $url = "$baseUrl/VirtIO.cer"
     (new-object System.Net.WebClient).DownloadFile($url, $virtioCertPath)
@@ -22,7 +22,8 @@ function Install-VirtIODrivers()
     $castore.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
     $castore.Add($cacert)
 
-    $driversBasePath = (Get-WMIObject Win32_CDROMDrive | ? { $_.caption -like "*virt*" }).Drive
+    #$driversBasePath = (Get-WMIObject Win32_CDROMDrive | ? { $_.caption -like "*virt*" }).Drive
+    $driversBasePath = "E:"
     $windowsVersion = getOSVersion
     if([Environment]::Is64BitOperatingSystem -eq "True"){
       $windowsArchitecure = "amd64"
@@ -40,7 +41,6 @@ function Install-VirtIODrivers()
     } else {
         throw "Unsupported Windows version for VirtIO drivers"
     }
-    #$virtioDir = "{0}\{1}\{2}" -f $driversBasePath, $virtioVer, $windowsArchitecure
     # For VirtIO ISO with drivers version higher than 1.8.x
     $windowsType = (Get-WmiObject win32_operatingsystem).producttype
     if ($windowsVersion.Major -eq 6 -and $windowsVersion.Minor -eq 0) {
@@ -64,6 +64,8 @@ function Install-VirtIODrivers()
         } else {
             $virtioVer = "w8.1"
         }
+    } elseif(($windowsVersion.Major -eq 10)) {
+        $virtioVer = "w10"
     } else {
         throw "Unsupported Windows version for VirtIO drivers"
     }
@@ -120,7 +122,7 @@ try
         "KVMKVMKVM"
         {
             Install-VirtIODrivers
-            Start-Sleep -s 15
+            Start-Sleep -s 10
             shutdown /r /t 0
         }
     }
